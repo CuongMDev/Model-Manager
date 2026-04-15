@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Classicmodels Analytics Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="ambient ambient-left"></div>
+    <div class="ambient ambient-right"></div>
+
+    <div class="app-layout">
+      <aside class="side-rail card">
+        <div class="rail-head">
+          <p class="rail-label">Desktop Navigation</p>
+          <h2>Classicmodels</h2>
+          <p class="rail-subtitle">
+            Explore orders, analytics, and pivot insights from one sidebar.
+          </p>
+        </div>
+
+        <nav class="rail-nav">
+          <a href="#ordersSection" class="rail-link active">Order Search</a>
+          <a href="#analyticsSection" class="rail-link">Analytics</a>
+          <a href="#pivotSection" class="rail-link">Pivot Table</a>
+        </nav>
+
+        <div class="rail-meta">
+          <p class="rail-meta-title">Data Source</p>
+          <p class="rail-meta-text">MySQL Classicmodels via Sequelize ORM and REST API.</p>
+        </div>
+      </aside>
+
+      <main class="shell">
+      <header class="card hero">
+        <div>
+          <p class="eyebrow">REST + ORM + Pivot + Chart</p>
+          <h1>Classicmodels Data Explorer</h1>
+          <p class="subtitle">
+            Search transactions and analyze customer, time, and item performance
+            from the Classicmodels database.
+          </p>
+        </div>
+        <div class="status-badge" id="apiStatus">Checking API...</div>
+      </header>
+
+      <section class="card section" id="ordersSection">
+        <div class="section-head">
+          <h2>Order Search</h2>
+          <button type="button" class="ghost" id="clearSearchBtn">Clear Filters</button>
+        </div>
+
+        <form id="searchForm" class="form-grid">
+          <label>
+            Customer
+            <input id="customerFilter" placeholder="Customer name" />
+          </label>
+          <label>
+            Product
+            <input id="productFilter" placeholder="Product name" />
+          </label>
+          <label>
+            Status
+            <select id="statusFilter">
+              <option value="">All</option>
+              <option value="Shipped">Shipped</option>
+              <option value="Resolved">Resolved</option>
+              <option value="Cancelled">Cancelled</option>
+              <option value="On Hold">On Hold</option>
+              <option value="Disputed">Disputed</option>
+              <option value="In Process">In Process</option>
+            </select>
+          </label>
+          <label>
+            From date
+            <input id="searchFromDate" type="date" />
+          </label>
+          <label>
+            To date
+            <input id="searchToDate" type="date" />
+          </label>
+          <label>
+            Page size
+            <select id="pageSize">
+              <option value="10">10</option>
+              <option value="15" selected>15</option>
+              <option value="20">20</option>
+              <option value="30">30</option>
+            </select>
+          </label>
+          <div class="actions-row">
+            <button type="submit" class="primary">Search</button>
+          </div>
+        </form>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Order</th>
+                <th>Date</th>
+                <th>Customer</th>
+                <th>Status</th>
+                <th>Items</th>
+                <th>Units</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody id="searchResultBody"></tbody>
+          </table>
+        </div>
+
+        <div class="pagination">
+          <button type="button" class="ghost" id="prevPageBtn">Previous</button>
+          <span id="pageInfo">Page 1</span>
+          <button type="button" class="ghost" id="nextPageBtn">Next</button>
+        </div>
+      </section>
+
+      <section class="card section" id="analyticsSection">
+        <div class="section-head">
+          <h2>Analytics</h2>
+          <form id="statsFilterForm" class="inline-controls">
+            <label>
+              From
+              <input id="statsFromDate" type="date" />
+            </label>
+            <label>
+              To
+              <input id="statsToDate" type="date" />
+            </label>
+            <label>
+              Year
+              <input id="statsYear" type="number" min="1900" max="2099" value="2004" />
+            </label>
+            <label>
+              Top N
+              <input id="statsLimit" type="number" min="3" max="30" value="10" />
+            </label>
+            <button type="submit" class="primary">Refresh</button>
+          </form>
+        </div>
+
+        <div class="metric-grid">
+          <article class="metric">
+            <h3>Revenue</h3>
+            <p id="overviewRevenue">$0.00</p>
+          </article>
+          <article class="metric">
+            <h3>Orders</h3>
+            <p id="overviewOrders">0</p>
+          </article>
+          <article class="metric">
+            <h3>Customers</h3>
+            <p id="overviewCustomers">0</p>
+          </article>
+          <article class="metric">
+            <h3>Avg Order Value</h3>
+            <p id="overviewAov">$0.00</p>
+          </article>
+        </div>
+
+        <div class="chart-grid">
+          <article class="chart-card">
+            <h3>Top Customers by Revenue</h3>
+            <canvas id="customerChart"></canvas>
+          </article>
+          <article class="chart-card">
+            <h3>Revenue by Time</h3>
+            <canvas id="timeChart"></canvas>
+          </article>
+          <article class="chart-card">
+            <h3>Top Products by Revenue</h3>
+            <canvas id="productChart"></canvas>
+          </article>
+        </div>
+
+        <div class="pivot-box" id="pivotSection">
+          <h3>Pivot Table: Customer x Month</h3>
+          <div id="pivotContainer" class="table-wrap"></div>
+        </div>
+      </section>
+      </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
